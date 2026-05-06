@@ -1,4 +1,5 @@
 import bpy
+import json
 import numpy as np
 from mathutils import Vector
 from pathlib import Path
@@ -66,8 +67,58 @@ con.target = target
 con.track_axis = 'TRACK_NEGATIVE_Z'
 con.up_axis = 'UP_Y'
 
+# ---- Render settings ----
+scene = bpy.context.scene
+scene.render.film_transparent = True
+scene.render.image_settings.file_format = 'PNG'
+scene.render.image_settings.color_mode = 'RGBA'
+scene.render.resolution_x = 224
+scene.render.resolution_y = 224
+scene.render.resolution_percentage = 100
+scene.render.filepath = "//templates/tmpl_"  # Blender appends frame number padded to render.frame_padding (default 4)
+scene.frame_start = 0
+scene.frame_end = n - 1
+
+# ---- Keyframe viewpoint[i] at frame i, then force CONSTANT interpolation (hard cuts) ----
 for i, v in enumerate(viewpoints):
-    cam.location = Vector(v)
-    bpy.context.view_layer.update()        # apply the constraint now
-    bpy.context.scene.render.filepath = f"//templates/tmpl_{i:03d}.png"
-    bpy.ops.render.render(write_still=True)
+    scene.frame_set(i)
+    cam.location = Vector(v.tolist())
+    cam.keyframe_insert(data_path="location", frame=i)
+
+if cam.animation_data and cam.animation_data.action:
+    for fcurve in cam.animation_data.action.fcurves:
+        for kp in fcurve.keyframe_points:
+            kp.interpolation = 'CONSTANT'
+
+# ---- Pose dump: one JSON for all frames (after keyframes so Track To resolves correctly each frame) ----
+templates_dir = Path(bpy.path.abspath(scene.render.filepath)).parent
+templates_dir.mkdir(parents=True, exist_ok=True)
+
+poses = []
+for i in range(n):
+    scene.frame_set(i)
+    bpy.context.view_layer.update()
+    mw = cam.matrix_world
+    R_c2w = mw.to_3x3()
+    R_w2c = R_c2w.transposed()
+    t = mw.translation
+    poses.append({
+        "frame": i,
+        "file": f"tmpl_{i:04d}.png",
+        "viewpoint_xyz": viewpoints[i].tolist(),
+        "azimuth_rad": float(azimuth[i]),
+        "elevation_rad": float(elevation[i]),
+        "azimuth_deg": float(np.degrees(azimuth[i])),
+        "elevation_deg": float(np.degrees(elevation[i])),
+        "R_cam_to_world_3x3": [list(r[:3]) for r in R_c2w],
+        "R_world_to_cam_3x3": [list(r[:3]) for r in R_w2c],
+        "t_cam_to_world_3": [t.x, t.y, t.z],
+    })
+
+(templates_dir / "poses.json").write_text(json.dumps(poses, indent=2))
+
+# ---- Render the full animation: 1 PNG per frame ----
+scene.frame_set(scene.frame_start)
+bpy.ops.render.render(animation=True)
+
+print(f"Done: {n} templates rendered to {templates_dir}")
