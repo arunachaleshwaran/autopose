@@ -32,8 +32,9 @@ if max_dim > 0:
     benchy.scale = (s, s, s)
 bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
 
+iso_sphere_radius = max(benchy.dimensions) * CAMERA_POSITION_RANGE
 # Add an ico sphere with the specified subdivisions and radius
-bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=3, radius=max(benchy.dimensions) * CAMERA_POSITION_RANGE, location=(0, 0, 0))
+bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=3, radius=iso_sphere_radius, location=(0, 0, 0))
 ico = bpy.context.active_object
 
 if ico is None:
@@ -47,7 +48,7 @@ viewpoints = co.reshape(n, 3)         # shape (162, 3) — these are your azimut
 
 # Convert each to (azimuth, elevation) if you want angles instead of unit vectors
 x, y, z = viewpoints.T
-elevation = np.arcsin(z)              # radians, [-pi/2, pi/2]
+elevation = np.arcsin(z / iso_sphere_radius)              # radians, [-pi/2, pi/2]
 azimuth   = np.arctan2(y, x)          # radians, [-pi, pi]
 
 # Make / reuse one camera
