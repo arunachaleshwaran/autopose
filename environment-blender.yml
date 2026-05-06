@@ -1,0 +1,4 @@
+dependencies:
+  - numpy
+  - pip:
+      - fake-bpy-module-latest

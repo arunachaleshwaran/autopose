@@ -1,0 +1,70 @@
+name: autopose
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+
+  # Core scientific stack
+  - numpy
+  - scipy
+  - pandas
+  - matplotlib
+  - jupyterlab
+  - ipywidgets
+  - tqdm
+
+  # PyTorch (MPS-enabled on Apple Silicon via the pytorch channel)
+  - pytorch::pytorch
+  - pytorch::torchvision
+
+  # Image / video I/O
+  - pillow
+  - opencv
+  - imageio
+  - scikit-image
+
+  # 3D / mesh / pose math
+  - trimesh
+  - pyglet=1.5
+  - networkx
+  - shapely
+
+  # Dev tooling
+  - pytest
+  - ruff
+  - black
+  - pre-commit
+
+  - pip:
+      # Vision backbones (DINOv2, ViT, ResNet variants)
+      - timm
+      - einops
+      - transformers
+
+      # Training framework + config
+      - lightning
+      - hydra-core
+      - omegaconf
+
+      # Augmentations
+      - albumentations
+      - kornia
+
+      # Experiment tracking (pick one — both light to install)
+      - wandb
+      - tensorboard
+
+      # 3D rendering helpers (CPU-friendly on Mac)
+      - pyrender
+      - pyrr
+
+      # Pose / geometry utilities
+      - scipy
+      - roma            # rotation manipulation (quat/matrix/axis-angle)
+
+      # Quality-of-life
+      - rich
+      - typer
+      - python-dotenv
