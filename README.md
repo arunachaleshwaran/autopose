@@ -1,7 +1,12 @@
+# Getting Started
+1. [Blender scripting](#for-blender-scripting-for-dataset-creation-(only-once)) building dataset only once create a template folder
+2. Upload the dataset to drive at `MyDrive/autopose`
+3. continue at [NoteBook](#notebook)
+# For you own 3D model
+1. Place your 3D model in `assets` folder and update the path in `script/blender/ico-sphere-template-162.py` file.
+2. continue with the steps mentioned in [For Blender scripting for dataset creation (only once)](#for-blender-scripting-for-dataset-creation-(only-once)) section to create dataset for your 3D model.
 # NoteBook
 [autopose_colab.ipynb](https://colab.research.google.com/github/arunachaleshwaran/autopose/blob/main/notebooks/autopose_colab.ipynb) 
-# Getting Started
-
 ## Environment Setup
 ```sh
 # Clone the repository
@@ -18,7 +23,7 @@ updating environment.yml
 conda env update -f environment.yml --prune
 ```
 
-## For Blender scripting (optional)
+## For Blender scripting for dataset creation (only once)
 Adds `bpy` type stubs so your IDE autocompletes Blender's Python API. Stubs only — does not install Blender or let you `import bpy` at runtime. Scripts still run via `blender --background --python script.py`.
 
 ```sh
